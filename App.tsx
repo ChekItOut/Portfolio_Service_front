@@ -83,13 +83,15 @@ const App: React.FC = () => {
         )}
 
         {view === 'detail' && selectedItem && (
-          <div className="pt-32 pb-20">
-            <PortfolioDetail 
-              item={selectedItem} 
-              onEdit={() => setView('edit')}
-              onDelete={() => handleDelete(selectedItem.id)}
-              onBack={() => setView('home')}
-            />
+          <div className="min-h-screen flex flex-col">
+            <div className="flex-1 flex items-center py-16">
+              <PortfolioDetail
+                item={selectedItem}
+                onEdit={() => setView('edit')}
+                onDelete={() => handleDelete(selectedItem.id)}
+                onBack={() => setView('home')}
+              />
+            </div>
             <Footer />
           </div>
         )}
