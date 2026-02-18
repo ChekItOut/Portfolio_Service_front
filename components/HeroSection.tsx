@@ -226,7 +226,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick }) =>
       {/* Central Typography */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[9999]">
         <span className="text-[#666] font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Graphic design</span>
-        <h1 className="text-[16vw] md:text-[11vw] font-normal leading-none text-black tracking-tighter">
+        <h1 className="text-[16vw] md:text-[11vw] font-normal leading-none text-black tracking-tighter drop-shadow-sm">
           Portfolio
         </h1>
       </div>
