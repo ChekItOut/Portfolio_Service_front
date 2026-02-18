@@ -5,6 +5,7 @@ import { PortfolioItem } from '../types';
 interface HeroSectionProps {
   portfolios: PortfolioItem[];
   onItemClick: (id: string) => void;
+  onAddClick: () => void;
 }
 
 interface RouteResult {
@@ -74,7 +75,7 @@ interface WobbleState {
   try: number;  // 목표 rotateY
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAddClick }) => {
   const [progress, setProgress] = useState(0.5);
   const [routeVersion, setRouteVersion] = useState<number>(() => {
     const saved = localStorage.getItem('curvify_route_version');
@@ -219,14 +220,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick }) =>
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative w-full h-screen bg-white overflow-hidden select-none cursor-grab active:cursor-grabbing"
     >
+
       {/* Central Typography */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[9999]">
         <span className="text-[#666] font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Graphic design</span>
-        <h1 className="text-[16vw] md:text-[11vw] font-normal leading-none text-black tracking-tighter drop-shadow-sm">
+        <h1
+          className="text-[16vw] md:text-[11vw] font-cormorant leading-none text-black tracking-tighter"
+          style={{
+            textShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            transform: 'skewX(-12deg)'
+          }}
+        >
           Portfolio
         </h1>
       </div>
@@ -302,7 +310,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick }) =>
           const BTN_ID = 'route-toggle-btn';
           const btnIdx = portfolios.length;  // 마지막 포트폴리오 다음 인덱스
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(btnIdx, portfolios.length + 1, progress);
+            getPosition(btnIdx, portfolios.length + 2, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -357,6 +365,66 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick }) =>
                   {nextLabel}
                 </span>
                 <div className="mt-1.5 w-4 h-[1px] bg-white opacity-40" />
+              </div>
+            </div>
+          );
+        })()}
+
+        {(() => {
+          const ADD_PROJECT_ID = 'add-project-btn';
+          const btnIdx = portfolios.length + 1;
+          const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
+            getPosition(btnIdx, portfolios.length + 2, progress);
+
+          if (opacity <= 0.01) return null;
+
+          const btnRotation = rotations[(portfolios.length + 1) % rotations.length];
+
+          return (
+            <div
+              key={ADD_PROJECT_ID}
+              onClick={onAddClick}
+              className="absolute pointer-events-auto cursor-pointer group"
+              style={{
+                left: 0, top: 0,
+                transform: `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scaleMultiplier}) rotate(${btnRotation}deg)`,
+                zIndex: zIndex + 10,
+                opacity: opacity,
+                willChange: 'transform, opacity',
+                transition: isTransitioningRef.current ? 'transform 0.5s ease-out' : undefined,
+              }}
+              onMouseMove={(e) => handleCardTilt(ADD_PROJECT_ID, e.clientX, e.clientY, e.currentTarget)}
+              onMouseLeave={() => resetCardTilt(ADD_PROJECT_ID)}
+              onTouchStart={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(ADD_PROJECT_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchMove={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(ADD_PROJECT_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchEnd={() => resetCardTilt(ADD_PROJECT_ID)}
+              onTouchCancel={() => resetCardTilt(ADD_PROJECT_ID)}
+            >
+              <div
+                ref={(el) => {
+                  if (el) {
+                    cardRefs.current.set(ADD_PROJECT_ID, el);
+                    if (!wobbleMap.current.has(ADD_PROJECT_ID)) {
+                      wobbleMap.current.set(ADD_PROJECT_ID, { rx: 0, ry: 0, trx: 0, try: 0 });
+                    }
+                  } else {
+                    cardRefs.current.delete(ADD_PROJECT_ID);
+                    wobbleMap.current.delete(ADD_PROJECT_ID);
+                  }
+                }}
+                style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
+                className="bg-white border-2 border-black flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow"
+              >
+                <span className="text-black text-[24px] font-light leading-none">+</span>
+                <span className="text-black text-[8px] font-black uppercase tracking-widest mt-1.5">
+                  Add
+                </span>
               </div>
             </div>
           );

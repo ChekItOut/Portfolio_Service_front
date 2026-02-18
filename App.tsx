@@ -4,7 +4,6 @@ import { PortfolioItem, ViewState } from './types';
 import HeroSection from './components/HeroSection';
 import PortfolioForm from './components/PortfolioForm';
 import PortfolioDetail from './components/PortfolioDetail';
-import Header from './components/Header';
 
 // Initial default data
 const DEFAULT_PORTFOLIOS: PortfolioItem[] = Array.from({ length: 12 }).map((_, i) => ({
@@ -66,13 +65,12 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-[#f9fafb] text-gray-900 ${view === 'home' ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
-      <Header setView={setView} currentView={view} onAddClick={navigateToCreate} />
-      
       <main className="relative">
         {view === 'home' && (
-          <HeroSection 
-            portfolios={portfolios} 
-            onItemClick={navigateToDetail} 
+          <HeroSection
+            portfolios={portfolios}
+            onItemClick={navigateToDetail}
+            onAddClick={navigateToCreate}
           />
         )}
 

@@ -136,7 +136,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ initialData, onSubmit, on
           onClick={onCancel}
           className="px-10 py-4 border border-gray-200 rounded-xl font-bold tracking-widest hover:bg-gray-50 transition-colors uppercase"
         >
-          Cancel
+          Back to ARCHIVE
         </button>
       </div>
     </form>
