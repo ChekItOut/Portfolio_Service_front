@@ -175,7 +175,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
       {/* 뒤로가기 버튼 */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors mb-8 group"
+        className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors mb-8 group"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -186,34 +186,34 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
         <div className="flex-1 space-y-12">
           {/* Main Content */}
           <section>
-            <h1 className="text-6xl font-black font-heading mb-6 leading-tight">{item.title}</h1>
+            <h1 className="text-6xl font-black font-heading mb-6 leading-tight dark:text-white">{item.title}</h1>
             <div className="flex flex-wrap gap-2 mb-8">
               {item.techStack.map((tech, i) => (
-                <span key={i} className="px-3 py-1 bg-gray-100 text-[10px] font-black uppercase tracking-widest rounded-full">
+                <span key={i} className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-[10px] font-black uppercase tracking-widest rounded-full dark:text-white">
                   {tech}
                 </span>
               ))}
             </div>
-            <p className="text-xl text-gray-600 leading-relaxed font-light">
+            <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
               {item.description}
             </p>
           </section>
 
           {/* Actions */}
-          <div className="flex gap-4 p-6 bg-gray-50 rounded-2xl">
-            <button 
+          <div className="flex gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+            <button
               onClick={onEdit}
-              className="flex-1 bg-black text-white py-4 rounded-xl font-bold tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               EDIT PROJECT
             </button>
-            <button 
+            <button
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete this project?')) {
                   onDelete();
                 }
               }}
-              className="px-8 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold tracking-widest transition-all"
+              className="px-8 border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl font-bold tracking-widest transition-all"
             >
               DELETE
             </button>
@@ -284,7 +284,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
             </div>
           ) : (
             // 빈 상태 — 기존 UI 유지
-            <div className="w-full aspect-video bg-gray-100 rounded-3xl flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest text-xs">
+            <div className="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest text-xs">
               No images available
             </div>
           )}

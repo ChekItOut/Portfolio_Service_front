@@ -6,6 +6,8 @@ interface HeroSectionProps {
   portfolios: PortfolioItem[];
   onItemClick: (id: string) => void;
   onAddClick: () => void;
+  isDark: boolean;
+  onToggleDark: () => void;
 }
 
 interface RouteResult {
@@ -115,7 +117,7 @@ interface WobbleState {
   try: number;  // 목표 rotateY
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAddClick }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAddClick, isDark, onToggleDark }) => {
   const [progress, setProgress] = useState(0.5);
   const [routeVersion, setRouteVersion] = useState<number>(() => {
     const saved = localStorage.getItem('curvify_route_version');
@@ -262,16 +264,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen bg-white overflow-hidden select-none cursor-grab active:cursor-grabbing"
+      className="relative w-full h-screen bg-white dark:bg-[#111111] overflow-hidden select-none cursor-grab active:cursor-grabbing transition-colors duration-300"
     >
 
       {/* Central Typography */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[9999]">
-        <span className="text-[#666] font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Keep Shipping & Keep Yours 🌊</span>
+        <span className="text-[#666] dark:text-gray-400 font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Keep Shipping & Keep Yours 🌊</span>
         <h1
-          className="text-[16vw] md:text-[11vw] font-cormorant leading-none text-black tracking-tighter"
+          className="text-[16vw] md:text-[11vw] font-cormorant leading-none text-black dark:text-white tracking-tighter"
           style={{
-            textShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            textShadow: isDark ? '0 4px 12px rgba(255, 255, 255, 0.1)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
             transform: 'skewX(-12deg)'
           }}
         >
@@ -325,7 +327,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
                   if (el) cardRefs.current.set(item.id, el);
                   else cardRefs.current.delete(item.id);
                 }}
-                className="relative bg-white shadow-sm overflow-hidden transition-shadow duration-300 group-hover:shadow-2xl"
+                className="relative bg-white dark:bg-gray-800 shadow-sm overflow-hidden transition-shadow duration-300 group-hover:shadow-2xl"
                 style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
               >
                 <img
@@ -334,9 +336,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                  <div className="bg-white/95 backdrop-blur-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                    <p className="text-[8px] font-black uppercase tracking-tighter text-black truncate max-w-[65px]">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors flex items-center justify-center">
+                  <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm px-2 py-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                    <p className="text-[8px] font-black uppercase tracking-tighter text-black dark:text-white truncate max-w-[65px]">
                       {item.title}
                     </p>
                   </div>
@@ -350,7 +352,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
           const BTN_ID = 'route-toggle-btn';
           const btnIdx = portfolios.length;  // 마지막 포트폴리오 다음 인덱스
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(btnIdx, portfolios.length + 2, progress);
+            getPosition(btnIdx, portfolios.length + 3, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -396,7 +398,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
                   }
                 }}
                 style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
-                className="bg-black flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow"
+                className="bg-black dark:bg-gray-800 flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow"
               >
                 <span className="text-white text-[8px] font-black uppercase tracking-widest opacity-60">
                   SWITCH TO
@@ -414,7 +416,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
           const ADD_PROJECT_ID = 'add-project-btn';
           const btnIdx = portfolios.length + 1;
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(btnIdx, portfolios.length + 2, progress);
+            getPosition(btnIdx, portfolios.length + 3, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -459,12 +461,89 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
                   }
                 }}
                 style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
-                className="bg-white border-2 border-black flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow"
+                className="bg-white dark:bg-gray-800 border-2 border-black dark:border-white flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow"
               >
-                <span className="text-black text-[24px] font-light leading-none">+</span>
-                <span className="text-black text-[8px] font-black uppercase tracking-widest mt-1.5">
+                <span className="text-black dark:text-white text-[24px] font-light leading-none">+</span>
+                <span className="text-black dark:text-white text-[8px] font-black uppercase tracking-widest mt-1.5">
                   Add
                 </span>
+              </div>
+            </div>
+          );
+        })()}
+
+        {(() => {
+          const DARK_BTN_ID = 'dark-toggle-btn';
+          const darkBtnIdx = portfolios.length + 2;
+          const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
+            getPosition(darkBtnIdx, portfolios.length + 3, progress);
+
+          if (opacity <= 0.01) return null;
+
+          const btnRotation = rotations[(portfolios.length + 2) % rotations.length];
+
+          return (
+            <div
+              key={DARK_BTN_ID}
+              onClick={onToggleDark}
+              className="absolute pointer-events-auto cursor-pointer group"
+              style={{
+                left: 0, top: 0,
+                transform: `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scaleMultiplier}) rotate(${btnRotation}deg)`,
+                zIndex: zIndex + 10,
+                opacity: opacity,
+                willChange: 'transform, opacity',
+                transition: isTransitioningRef.current ? 'transform 0.5s ease-out' : undefined,
+              }}
+              onMouseMove={(e) => handleCardTilt(DARK_BTN_ID, e.clientX, e.clientY, e.currentTarget)}
+              onMouseLeave={() => resetCardTilt(DARK_BTN_ID)}
+              onTouchStart={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(DARK_BTN_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchMove={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(DARK_BTN_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchEnd={() => resetCardTilt(DARK_BTN_ID)}
+              onTouchCancel={() => resetCardTilt(DARK_BTN_ID)}
+            >
+              <div
+                ref={(el) => {
+                  if (el) {
+                    cardRefs.current.set(DARK_BTN_ID, el);
+                    if (!wobbleMap.current.has(DARK_BTN_ID)) {
+                      wobbleMap.current.set(DARK_BTN_ID, { rx: 0, ry: 0, trx: 0, try: 0 });
+                    }
+                  } else {
+                    cardRefs.current.delete(DARK_BTN_ID);
+                    wobbleMap.current.delete(DARK_BTN_ID);
+                  }
+                }}
+                style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
+                className={`flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow ${
+                  isDark ? 'bg-white' : 'bg-black'
+                }`}
+              >
+                {isDark ? (
+                  <>
+                    <svg className="w-5 h-5 text-black mb-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.707.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm5.657-9.193a1 1 0 00-1.414 0l-.707.707A1 1 0 005.05 13.536l.707.707a1 1 0 001.414-1.414l-.707-.707zM5 12a1 1 0 100 2H4a1 1 0 100-2h1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-black text-[8px] font-black uppercase tracking-widest opacity-60">
+                      LIGHT
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-white mb-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                    <span className="text-white text-[8px] font-black uppercase tracking-widest opacity-60">
+                      DARK
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           );
@@ -472,7 +551,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
       </div>
 
       {/* Visual scroll hint */}
-      <div className="absolute bottom-10 left-10 flex items-center gap-4 text-gray-200 opacity-40 pointer-events-none">
+      <div className="absolute bottom-10 left-10 flex items-center gap-4 text-gray-200 dark:text-gray-600 opacity-40 pointer-events-none">
          <span className="text-[8px] font-bold tracking-[0.5em] uppercase vertical-text">DRAG OR SCROLL</span>
       </div>
     </div>

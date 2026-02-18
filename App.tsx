@@ -22,6 +22,7 @@ const App: React.FC = () => {
   });
   const [view, setView] = useState<ViewState>('home');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('curvify_portfolios', JSON.stringify(portfolios));
@@ -31,6 +32,13 @@ const App: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
+
+  // HTML 클래스 토글 (Tailwind dark: 활성화)
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+
+  const toggleDark = () => setIsDark(prev => !prev);
 
   const handleCreate = (item: Omit<PortfolioItem, 'id' | 'createdAt'>) => {
     const newItem: PortfolioItem = {
@@ -64,19 +72,21 @@ const App: React.FC = () => {
   const selectedItem = portfolios.find(p => p.id === selectedId);
 
   return (
-    <div className={`min-h-screen bg-[#f9fafb] text-gray-900 ${view === 'home' ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
+    <div className={`min-h-screen bg-[#f9fafb] dark:bg-[#111111] text-gray-900 dark:text-gray-100 transition-colors duration-300 ${view === 'home' ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
       <main className="relative">
         {view === 'home' && (
           <HeroSection
             portfolios={portfolios}
             onItemClick={navigateToDetail}
             onAddClick={navigateToCreate}
+            isDark={isDark}
+            onToggleDark={toggleDark}
           />
         )}
 
         {view === 'create' && (
           <div className="max-w-4xl mx-auto p-6 pt-32 pb-20">
-            <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter">New Portfolio</h2>
+            <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter dark:text-white">New Portfolio</h2>
             <PortfolioForm onSubmit={handleCreate} onCancel={() => setView('home')} />
             <Footer />
           </div>
@@ -98,7 +108,7 @@ const App: React.FC = () => {
 
         {view === 'edit' && selectedItem && (
           <div className="max-w-4xl mx-auto p-6 pt-32 pb-20">
-            <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter">Edit Portfolio</h2>
+            <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter dark:text-white">Edit Portfolio</h2>
             <PortfolioForm 
               initialData={selectedItem} 
               onSubmit={(data) => handleUpdate(selectedItem.id, data)} 
@@ -113,7 +123,7 @@ const App: React.FC = () => {
 };
 
 const Footer: React.FC = () => (
-  <footer className="py-10 text-center text-gray-300 border-t border-gray-50 bg-[#f9fafb] w-full">
+  <footer className="py-10 text-center text-gray-300 dark:text-gray-600 border-t border-gray-50 dark:border-gray-800 bg-[#f9fafb] dark:bg-[#111111] w-full transition-colors duration-300">
     <p className="text-[10px] font-heading tracking-[0.5em] uppercase font-bold">Curvify Creative Lab © 2024</p>
   </footer>
 );
