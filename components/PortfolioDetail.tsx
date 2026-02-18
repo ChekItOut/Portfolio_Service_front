@@ -73,6 +73,21 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
       // rAF는 계속 실행 → tilt 스프링 애니메이션이 작동
     }
 
+    // 슬롯별 독립적인 slotIndex 추적 배열
+    const slotIndices = [-2, -1, 0, 1, 2];
+    const WRAP_THRESHOLD = SLOT_ANGLE * VISIBLE_SLOTS / 2; // 200° — 드럼 완전 뒤쪽 임계값
+
+    // rAF 시작 전: 초기 이미지 할당
+    if (n > 1) {
+      for (let idx = 0; idx < VISIBLE_SLOTS; idx++) {
+        const si = slotIndices[idx];
+        const imgIdx = ((si % n) + n) % n;
+        if (slotImgRefs.current[idx]) {
+          slotImgRefs.current[idx]!.src = item.images[imgIdx];
+        }
+      }
+    }
+
     const animate = () => {
       // 이미지 2장 이상일 때만 자동 회전
       if (n > 1) {
@@ -104,24 +119,35 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
       }
 
       // 2장 이상: 슬롯별 캐러셀 회전 + 이미지 할당
-      const centerSlot = Math.round(rotationRef.current / SLOT_ANGLE);
-
       for (let idx = 0; idx < VISIBLE_SLOTS; idx++) {
-        const slotOffset = idx - HALF;                           // -2 ~ +2
-        const slotIndex = centerSlot + slotOffset;
-        const angleInDeg = slotIndex * SLOT_ANGLE - rotationRef.current;
-        const imgIdx = ((slotIndex % n) + n) % n;               // 모듈러 순환
+        let si = slotIndices[idx];
+        let angleInDeg = si * SLOT_ANGLE - rotationRef.current;
+
+        // 슬롯이 드럼 완전 뒤쪽(±200° 초과)으로 넘어가면 반대편으로 이동
+        // 이 시점에는 backfaceVisibility가 이미 숨겨줬으므로 사용자에게 보이지 않음
+        if (angleInDeg > WRAP_THRESHOLD) {
+          si -= VISIBLE_SLOTS;           // 5 슬롯 뒤로 이동 (400° 감소)
+          slotIndices[idx] = si;
+          angleInDeg = si * SLOT_ANGLE - rotationRef.current;
+          // 화면 밖에서 이미지 업데이트 (사용자에게 보이지 않음)
+          const imgIdx = ((si % n) + n) % n;
+          if (slotImgRefs.current[idx]) slotImgRefs.current[idx]!.src = item.images[imgIdx];
+        } else if (angleInDeg < -WRAP_THRESHOLD) {
+          si += VISIBLE_SLOTS;           // 5 슬롯 앞으로 이동 (400° 증가)
+          slotIndices[idx] = si;
+          angleInDeg = si * SLOT_ANGLE - rotationRef.current;
+          const imgIdx = ((si % n) + n) % n;
+          if (slotImgRefs.current[idx]) slotImgRefs.current[idx]!.src = item.images[imgIdx];
+        }
 
         if (slotDivRefs.current[idx]) {
-          // opacity로 가시성 제어 — 중앙만 보이고 나머지는 완전히 숨김 (흐려지는 효과 없음)
           const absAngle = Math.abs(angleInDeg);
-          const opacity = absAngle < SLOT_ANGLE / 2 ? 1 : 0;
+          // 88°까지 opacity 1 유지 → backfaceVisibility가 90°에서 자연스럽게 숨김
+          // 기존 40° 임계값 대신 88°로 확장 → 인접 카드가 얇은 슬라이버로 보이며 자연스러운 드럼 회전 연출
+          const opacity = absAngle < 88 ? 1 : 0;
           slotDivRefs.current[idx]!.style.transform =
             `rotateX(${angleInDeg}deg) translateZ(${FIXED_RADIUS}px)`;
           slotDivRefs.current[idx]!.style.opacity = `${opacity}`;
-        }
-        if (slotImgRefs.current[idx]) {
-          slotImgRefs.current[idx]!.src = item.images[imgIdx];
         }
       }
 
