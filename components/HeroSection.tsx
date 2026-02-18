@@ -65,8 +65,48 @@ const ROUTE_V2: RouteFn = (t, vw, vh) => {
   return { x, y, opacity, zIndex, scaleMultiplier, baseSize };
 };
 
-const ROUTES: RouteFn[] = [ROUTE_V1, ROUTE_V2];
-const ROUTE_LABELS = ['RIBBON', 'SPIRAL'];
+// Version 3: Cross 궤도 (세로 Lissajous figure-8)
+const ROUTE_V3: RouteFn = (t, vw, vh) => {
+  const baseSize = vw < 768 ? 60 : 95;
+  const centerX = vw / 2;
+  const centerY = vh / 2;
+
+  // 한 사이클 = 2π (figure-8 한 바퀴)
+  const CROSS_PERIOD = 2 * Math.PI;
+  const phase = ((t % CROSS_PERIOD) + CROSS_PERIOD) % CROSS_PERIOD;
+  const normalizedPhase = phase / CROSS_PERIOD; // 0 ~ 1
+
+  const scaleX = vw * 0.46;   // V2처럼 화면 전체 너비 활용
+  const scaleY = vh * 0.42;   // 화면 높이의 42% 활용
+
+  // Lissajous 2:1: x 2번 진동, y 1번 진동 → 세로 figure-8
+  // progress 증가 → t 감소 → phase 감소 → 왼쪽→오른쪽 이동 보장을 위해 x 부호 반전
+  const x = centerX - scaleX * Math.sin(2 * phase);
+  const y = centerY + scaleY * Math.sin(phase);
+
+  // 불투명도: x 좌표 기준으로 왼쪽 생성 직후 / 오른쪽 이탈 직전 페이드
+  const xMin = centerX - scaleX;
+  const xMax = centerX + scaleX;
+  const normalizedX = (x - xMin) / (xMax - xMin); // 0 ~ 1
+  const FADE_X = 0.10; // 좌우 각 10% 구간에서 페이드
+  let opacity: number;
+  if (normalizedX < FADE_X) {
+    opacity = normalizedX / FADE_X;
+  } else if (normalizedX > 1 - FADE_X) {
+    opacity = (1 - normalizedX) / FADE_X;
+  } else {
+    opacity = 1.0;
+  }
+
+  // z-index: 경로 위쪽 루프(y < centerY)에서 높게, 아래쪽 루프에서 낮게
+  const zIndex = Math.round((1 - normalizedPhase) * 100);
+  const scaleMultiplier = 0.75 + Math.abs(Math.cos(phase)) * 0.25;
+
+  return { x, y, opacity, zIndex, scaleMultiplier, baseSize };
+};
+
+const ROUTES: RouteFn[] = [ROUTE_V1, ROUTE_V2, ROUTE_V3];
+const ROUTE_LABELS = ['RIBBON', 'SPIRAL', 'CROSS'];
 
 interface WobbleState {
   rx: number;   // 현재 rotateX (도)
@@ -211,8 +251,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
 
   const getPosition = (index: number, _total: number, currentProgress: number) => {
     const pathSpan = 8;
-    // V2에서만 간격을 넓혀서 카드들이 더 분산되도록
-    const itemSpacing = routeVersion === 1 ? 0.6 : 0.35;
+    // ROUTE_V1(0): 0.6, ROUTE_V2(1): 0.55, ROUTE_V3(2): 0.35
+    const itemSpacing = routeVersion === 0 ? 0.6 : routeVersion === 1 ? 0.55 : 0.35;
     const t = (index * itemSpacing) - (currentProgress * pathSpan) + 2.5;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -227,7 +267,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
 
       {/* Central Typography */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[9999]">
-        <span className="text-[#666] font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Graphic design</span>
+        <span className="text-[#666] font-normal tracking-[0.02em] text-[11px] md:text-[13px] mb-[-4px] font-mono">Keep Shipping & Keep Yours 🌊</span>
         <h1
           className="text-[16vw] md:text-[11vw] font-cormorant leading-none text-black tracking-tighter"
           style={{
