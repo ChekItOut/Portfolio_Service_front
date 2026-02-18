@@ -65,7 +65,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
         }
       }
       if (slotDivRefs.current[HALF]) {
-        slotDivRefs.current[HALF]!.style.transform = `rotateX(0deg) translateZ(0px)`;
+        slotDivRefs.current[HALF]!.style.transform = `rotateX(0deg) translateZ(${FIXED_RADIUS}px)`;
       }
       if (slotImgRefs.current[HALF]) {
         slotImgRefs.current[HALF]!.src = item.images[0];
