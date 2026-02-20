@@ -4,10 +4,14 @@ import { PortfolioItem } from '../types';
 
 interface HeroSectionProps {
   portfolios: PortfolioItem[];
-  onItemClick: (id: string) => void;
+  onItemClick: (id: number) => void;
   onAddClick: () => void;
   isDark: boolean;
   onToggleDark: () => void;
+  isAuthenticated?: boolean;
+  isLoading?: boolean;
+  onLogin?: () => void;
+  onLogout?: () => Promise<void>;
 }
 
 interface RouteResult {
@@ -117,7 +121,17 @@ interface WobbleState {
   try: number;  // 목표 rotateY
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAddClick, isDark, onToggleDark }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({
+  portfolios,
+  onItemClick,
+  onAddClick,
+  isDark,
+  onToggleDark,
+  isAuthenticated = false,
+  isLoading = false,
+  onLogin,
+  onLogout
+}) => {
   const [progress, setProgress] = useState(0.5);
   const [routeVersion, setRouteVersion] = useState<number>(() => {
     const saved = localStorage.getItem('curvify_route_version');
@@ -422,10 +436,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
 
           const btnRotation = rotations[(portfolios.length + 1) % rotations.length];
 
+          const handleAddClick = () => {
+            if (!isAuthenticated) {
+              alert('포트폴리오를 추가하려면 로그인이 필요합니다.');
+              return;
+            }
+            onAddClick();
+          };
+
           return (
             <div
               key={ADD_PROJECT_ID}
-              onClick={onAddClick}
+              onClick={handleAddClick}
               className="absolute pointer-events-auto cursor-pointer group"
               style={{
                 left: 0, top: 0,
@@ -554,6 +576,28 @@ const HeroSection: React.FC<HeroSectionProps> = ({ portfolios, onItemClick, onAd
       <div className="absolute bottom-10 left-10 flex items-center gap-4 text-gray-200 dark:text-gray-600 opacity-40 pointer-events-none">
          <span className="text-[8px] font-bold tracking-[0.5em] uppercase vertical-text">DRAG OR SCROLL</span>
       </div>
+
+      {/* 로그인/로그아웃 버튼 (상단 우측) */}
+      {isAuthenticated ? (
+        <div className="absolute top-10 right-10 z-[1000] pointer-events-auto">
+          <button
+            onClick={onLogout}
+            disabled={isLoading}
+            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? '로그아웃 중...' : '로그아웃'}
+          </button>
+        </div>
+      ) : (
+        <div className="absolute top-10 right-10 z-[1000] pointer-events-auto">
+          <button
+            onClick={onLogin}
+            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm uppercase tracking-widest"
+          >
+            Login with Google
+          </button>
+        </div>
+      )}
     </div>
   );
 };

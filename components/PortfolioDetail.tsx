@@ -68,7 +68,9 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
         slotDivRefs.current[HALF]!.style.transform = `rotateX(0deg) translateZ(${FIXED_RADIUS}px)`;
       }
       if (slotImgRefs.current[HALF]) {
-        slotImgRefs.current[HALF]!.src = item.images[0];
+        const img = item.images[0];
+        const src = typeof img === 'string' ? img : URL.createObjectURL(img);
+        slotImgRefs.current[HALF]!.src = src;
       }
       // rAF는 계속 실행 → tilt 스프링 애니메이션이 작동
     }
@@ -83,7 +85,9 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
         const si = slotIndices[idx];
         const imgIdx = ((si % n) + n) % n;
         if (slotImgRefs.current[idx]) {
-          slotImgRefs.current[idx]!.src = item.images[imgIdx];
+          const img = item.images[imgIdx];
+          const src = typeof img === 'string' ? img : URL.createObjectURL(img);
+          slotImgRefs.current[idx]!.src = src;
         }
       }
     }
@@ -131,7 +135,11 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
           angleInDeg = si * SLOT_ANGLE - rotationRef.current;
           // 화면 밖에서 이미지 업데이트 (사용자에게 보이지 않음)
           const imgIdx = ((si % n) + n) % n;
-          if (slotImgRefs.current[idx]) slotImgRefs.current[idx]!.src = item.images[imgIdx];
+          if (slotImgRefs.current[idx]) {
+            const img = item.images[imgIdx];
+            const src = typeof img === 'string' ? img : URL.createObjectURL(img);
+            slotImgRefs.current[idx]!.src = src;
+          }
         } else if (angleInDeg < -WRAP_THRESHOLD) {
           si += VISIBLE_SLOTS;           // 5 슬롯 앞으로 이동 (400° 증가)
           slotIndices[idx] = si;
@@ -194,9 +202,19 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
                 </span>
               ))}
             </div>
-            <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-              {item.description}
-            </p>
+            <div className="space-y-4">
+              {Array.isArray(item.description) ? (
+                item.description.map((desc, i) => (
+                  <p key={i} className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                    {desc}
+                  </p>
+                ))
+              ) : (
+                <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                  {item.description}
+                </p>
+              )}
+            </div>
           </section>
 
           {/* Actions */}
@@ -312,7 +330,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={item.images[selectedImageIdx]}
+              src={typeof item.images[selectedImageIdx] === 'string' ? item.images[selectedImageIdx] : URL.createObjectURL(item.images[selectedImageIdx] as File)}
               alt={`${item.title} - full view`}
               className="max-w-full max-h-[80vh] object-contain"
             />

@@ -1,11 +1,11 @@
 
 export interface PortfolioItem {
-  id: string;
+  id: number; // 백엔드와의 일관성 유지
   title: string;
-  description: string;
-  images: string[]; // Base64 or URLs
+  description: string[]; // 문단 배열로 변경
+  images: (File | string)[]; // File 또는 URL (S3)
   techStack: string[];
-  createdAt: number;
+  createdAt?: number;
 }
 
 export type ViewState = 'home' | 'create' | 'detail' | 'edit';
