@@ -8,9 +8,8 @@ const OAuthCallback: React.FC = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // URL에서 accessToken 추출
+        // 1. 에러 파라미터 체크
         const params = new URLSearchParams(window.location.search);
-        const token = params.get('accessToken');
         const error = params.get('error');
 
         if (error) {
@@ -18,15 +17,37 @@ const OAuthCallback: React.FC = () => {
           return;
         }
 
+        // 2. URL 파라미터에서 accessToken 시도 (백엔드가 전달하는 경우 대비)
+        let token = params.get('accessToken');
+
+        // 3. URL에 accessToken이 없으면 /api/token 호출하여 RefreshToken으로 획득
+        if (!token) {
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+
+          const response = await fetch(`${backendUrl}/api/token`, {
+            method: 'POST',
+            credentials: 'include', // RefreshToken 쿠키 포함
+          });
+
+          if (!response.ok) {
+            setError('액세스 토큰 발급에 실패했습니다.');
+            console.error('Token fetch failed:', response.status, response.statusText);
+            return;
+          }
+
+          const data = await response.json();
+          token = data.accessToken;
+        }
+
         if (!token) {
           setError('액세스 토큰을 받지 못했습니다.');
           return;
         }
 
-        // AccessToken 저장 및 상태 업데이트
+        // 4. AccessToken 저장 및 상태 업데이트
         setAccessToken(token);
 
-        // 메인 페이지로 리다이렉트
+        // 5. 메인 페이지로 리다이렉트
         window.location.href = '/';
       } catch (err) {
         setError('로그인 처리 중 오류가 발생했습니다.');

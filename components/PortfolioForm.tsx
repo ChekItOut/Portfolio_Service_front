@@ -6,9 +6,10 @@ interface PortfolioFormProps {
   initialData?: PortfolioItem;
   onSubmit: (data: Omit<PortfolioItem, 'id' | 'createdAt'>) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
-const PortfolioForm: React.FC<PortfolioFormProps> = ({ initialData, onSubmit, onCancel }) => {
+const PortfolioForm: React.FC<PortfolioFormProps> = ({ initialData, onSubmit, onCancel, isLoading = false }) => {
   const [title, setTitle] = useState(initialData?.title || '');
   const [descriptions, setDescriptions] = useState<string[]>(
     initialData?.description || ['']
@@ -173,9 +174,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ initialData, onSubmit, on
       <div className="flex gap-4 pt-6 border-t border-gray-50 dark:border-gray-700">
         <button
           type="submit"
-          className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold tracking-widest hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors uppercase"
+          disabled={isLoading}
+          className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold tracking-widest hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black dark:disabled:hover:bg-white"
         >
-          {initialData ? 'Update Project' : 'Save Project'}
+          {isLoading ? 'Saving...' : (initialData ? 'Update Project' : 'Save Project')}
         </button>
         <button
           type="button"

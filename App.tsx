@@ -256,7 +256,7 @@ const AppContent: React.FC = () => {
         {view === 'create' && (
           <div className="max-w-4xl mx-auto p-6 pt-32 pb-20">
             <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter dark:text-white">New Portfolio</h2>
-            <PortfolioForm onSubmit={handleCreate} onCancel={() => setView('home')} />
+            <PortfolioForm onSubmit={handleCreate} onCancel={() => setView('home')} isLoading={isLoading} />
             <Footer />
           </div>
         )}
@@ -278,10 +278,11 @@ const AppContent: React.FC = () => {
         {view === 'edit' && selectedItem && (
           <div className="max-w-4xl mx-auto p-6 pt-32 pb-20">
             <h2 className="text-4xl font-bold mb-8 font-heading uppercase tracking-tighter dark:text-white">Edit Portfolio</h2>
-            <PortfolioForm 
-              initialData={selectedItem} 
-              onSubmit={(data) => handleUpdate(selectedItem.id, data)} 
-              onCancel={() => setView('detail')} 
+            <PortfolioForm
+              initialData={selectedItem}
+              onSubmit={(data) => handleUpdate(selectedItem.id, data)}
+              onCancel={() => setView('detail')}
+              isLoading={isLoading}
             />
             <Footer />
           </div>
