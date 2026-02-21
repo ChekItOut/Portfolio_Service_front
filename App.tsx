@@ -25,6 +25,8 @@ const AppContent: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isDark, setIsDark] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [detailLoadingId, setDetailLoadingId] = useState<number | null>(null);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   // API 클라이언트에 토큰 갱신 콜백 설정
   useEffect(() => {
@@ -210,18 +212,55 @@ const AppContent: React.FC = () => {
   };
 
   const navigateToDetail = async (id: number) => {
-    if (isAuthenticated) {
-      try {
-        // 상세 정보 로드
-        const response = await apiClient.get<any>(`/portfolios/detail/${id}`);
-        const item = mapApiResponsesToPortfolioItems([response])[0];
-        setPortfolios(prev => prev.map(p => p.id === id ? item : p));
-      } catch (error) {
-        console.error('포트폴리오 상세 로드 실패:', error);
-      }
-    }
+    // 1. 로딩/에러 상태 초기화 및 뷰 전환
+    setDetailLoadingId(id);
+    setDetailError(null);
     setSelectedId(id);
     setView('detail');
+
+    // 2. 비로그인 상태면 로컬 데이터만 사용 (기본 샘플)
+    if (!isAuthenticated) {
+      setDetailLoadingId(null);
+      return;
+    }
+
+    try {
+      // 3. API 호출
+      const response = await apiClient.get<any>(`/portfolios/detail/${id}`);
+      console.log('[navigateToDetail] API 응답:', { response });
+
+      // 4. 응답 검증 (null 체크)
+      if (!response || !response.portfolioId) {
+        throw new Error('상세 데이터를 가져올 수 없습니다');
+      }
+
+      // 5. 데이터 매핑 및 portfolios 상태 업데이트
+      const item = mapApiResponsesToPortfolioItems([response])[0];
+      console.log('[navigateToDetail] 매핑된 데이터:', { item });
+      setPortfolios(prev => prev.map(p => p.id === id ? item : p));
+
+    } catch (error) {
+      console.error('[navigateToDetail] 포트폴리오 상세 로드 실패:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : '알 수 없는 에러'
+      });
+
+      // 6. 에러 메시지 설정
+      const errorMessage = error instanceof Error
+        ? error.message
+        : '상세 정보를 불러오는 중 오류가 발생했습니다';
+      setDetailError(errorMessage);
+
+      // 7. 로컬에 데이터가 없으면 홈으로 리다이렉트
+      const existsLocally = portfolios.some(p => p.id === id);
+      if (!existsLocally) {
+        alert(errorMessage + '\n홈으로 돌아갑니다.');
+        setView('home');
+      }
+    } finally {
+      // 8. 로딩 상태 해제
+      setDetailLoadingId(null);
+    }
   };
 
   const navigateToCreate = () => {
@@ -261,15 +300,63 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
-        {view === 'detail' && selectedItem && (
+        {view === 'detail' && (
           <div className="min-h-screen flex flex-col">
             <div className="flex-1 flex items-center py-16">
-              <PortfolioDetail
-                item={selectedItem}
-                onEdit={() => setView('edit')}
-                onDelete={() => handleDelete(selectedItem.id)}
-                onBack={() => setView('home')}
-              />
+              {/* 상태 1: 로딩 중 */}
+              {detailLoadingId === selectedId ? (
+                <div className="max-w-6xl mx-auto px-6 text-center">
+                  <div className="inline-block w-16 h-16 border-4 border-gray-200 border-t-black dark:border-t-white rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400">상세 정보를 불러오는 중...</p>
+                </div>
+              ) : detailError ? (
+                /* 상태 2: 에러 발생 */
+                <div className="max-w-6xl mx-auto px-6 text-center">
+                  <div className="mb-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 className="text-2xl font-bold mb-2 dark:text-white">오류 발생</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">{detailError}</p>
+                  </div>
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      onClick={() => {
+                        setDetailError(null);
+                        navigateToDetail(selectedId!);
+                      }}
+                      className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold hover:scale-[1.02] transition-all"
+                    >
+                      다시 시도
+                    </button>
+                    <button
+                      onClick={() => setView('home')}
+                      className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                    >
+                      홈으로 돌아가기
+                    </button>
+                  </div>
+                </div>
+              ) : selectedItem ? (
+                /* 상태 3: 정상 렌더링 */
+                <PortfolioDetail
+                  item={selectedItem}
+                  onEdit={() => setView('edit')}
+                  onDelete={() => handleDelete(selectedItem.id)}
+                  onBack={() => setView('home')}
+                />
+              ) : (
+                /* 상태 4: 데이터 없음 (fallback) */
+                <div className="max-w-6xl mx-auto px-6 text-center">
+                  <h2 className="text-2xl font-bold mb-4 dark:text-white">포트폴리오를 찾을 수 없습니다</h2>
+                  <button
+                    onClick={() => setView('home')}
+                    className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold hover:scale-[1.02] transition-all"
+                  >
+                    홈으로 돌아가기
+                  </button>
+                </div>
+              )}
             </div>
             <Footer />
           </div>

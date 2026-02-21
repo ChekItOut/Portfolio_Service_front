@@ -17,6 +17,21 @@ interface TiltState {
 }
 
 const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelete, onBack }) => {
+  // 1. item 유효성 검증
+  if (!item || !item.title) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">유효하지 않은 데이터입니다</h2>
+        <button
+          onClick={onBack}
+          className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold"
+        >
+          돌아가기
+        </button>
+      </div>
+    );
+  }
+
   // 슬롯 기반 캐러셀 상수 (고정)
   const SLOT_ANGLE = 80;        // 슬롯 간 각도 — 항상 고정 (이미지 수 무관)
   const FIXED_RADIUS = 200;     // translateZ 반지름 — 항상 고정 (카드 크기 보장)

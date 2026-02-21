@@ -7,12 +7,25 @@ import { PortfolioListResponse, PortfolioDetailResponse } from '../types/api';
 export const mapApiResponseToPortfolioItem = (
   response: PortfolioListResponse | PortfolioDetailResponse
 ): PortfolioItem => {
+  // 1. null/undefined 체크
+  if (!response) {
+    throw new Error('응답 데이터가 없습니다');
+  }
+
+  // 2. 필수 필드 검증
+  if (!response.portfolioId || !response.title) {
+    throw new Error('필수 필드가 누락되었습니다 (portfolioId, title)');
+  }
+
+  // 3. 안전한 변환
   return {
     id: Number(response.portfolioId),
     title: response.title,
-    description: response.description || [''],
-    images: response.images || [],
-    techStack: response.skill || [],
+    description: Array.isArray(response.description) && response.description.length > 0
+      ? response.description
+      : ['설명이 없습니다'],
+    images: Array.isArray(response.images) ? response.images : [],
+    techStack: Array.isArray(response.skill) ? response.skill : [],
   };
 };
 
