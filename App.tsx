@@ -311,23 +311,26 @@ const AppContent: React.FC = () => {
     setSelectedId(id);
     setView('detail');
 
-    // 2. 비로그인 상태면 로컬 데이터만 사용 (기본 샘플)
-    if (!isAuthenticated) {
+    // 2. 디폴트 포트폴리오 확인 (id 0-11)
+    const isDefaultPortfolio = id >= 0 && id <= 11;
+
+    // 3. 디폴트 포트폴리오이거나 비로그인 상태면 로컬 데이터만 사용
+    if (isDefaultPortfolio || !isAuthenticated) {
       setDetailLoadingId(null);
       return;
     }
 
     try {
-      // 3. API 호출
+      // 4. 사용자 포트폴리오만 API 호출
       const response = await apiClient.get<any>(`/portfolios/detail/${id}`);
       console.log('[navigateToDetail] API 응답:', { response });
 
-      // 4. 응답 검증 (null 체크)
+      // 5. 응답 검증 (null 체크)
       if (!response || !response.portfolioId) {
         throw new Error('상세 데이터를 가져올 수 없습니다');
       }
 
-      // 5. 데이터 매핑 및 portfolios 상태 업데이트
+      // 6. 데이터 매핑 및 portfolios 상태 업데이트
       const item = mapApiResponsesToPortfolioItems([response])[0];
       console.log('[navigateToDetail] 매핑된 데이터:', { item });
       setPortfolios(prev => prev.map(p => p.id === id ? item : p));
@@ -338,20 +341,20 @@ const AppContent: React.FC = () => {
         errorMessage: error instanceof Error ? error.message : '알 수 없는 에러'
       });
 
-      // 6. 에러 메시지 설정
+      // 7. 에러 메시지 설정
       const errorMessage = error instanceof Error
         ? error.message
         : '상세 정보를 불러오는 중 오류가 발생했습니다';
       setDetailError(errorMessage);
 
-      // 7. 로컬에 데이터가 없으면 홈으로 리다이렉트
+      // 8. 로컬에 데이터가 없으면 홈으로 리다이렉트
       const existsLocally = portfolios.some(p => p.id === id);
       if (!existsLocally) {
         alert(errorMessage + '\n홈으로 돌아갑니다.');
         setView('home');
       }
     } finally {
-      // 8. 로딩 상태 해제
+      // 9. 로딩 상태 해제
       setDetailLoadingId(null);
     }
   };

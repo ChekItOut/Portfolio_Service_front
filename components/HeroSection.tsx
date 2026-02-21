@@ -366,7 +366,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           const BTN_ID = 'route-toggle-btn';
           const btnIdx = portfolios.length;  // 마지막 포트폴리오 다음 인덱스
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(btnIdx, portfolios.length + 3, progress);
+            getPosition(btnIdx, portfolios.length + 4, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -430,7 +430,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           const ADD_PROJECT_ID = 'add-project-btn';
           const btnIdx = portfolios.length + 1;
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(btnIdx, portfolios.length + 3, progress);
+            getPosition(btnIdx, portfolios.length + 4, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -498,7 +498,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           const DARK_BTN_ID = 'dark-toggle-btn';
           const darkBtnIdx = portfolios.length + 2;
           const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
-            getPosition(darkBtnIdx, portfolios.length + 3, progress);
+            getPosition(darkBtnIdx, portfolios.length + 4, progress);
 
           if (opacity <= 0.01) return null;
 
@@ -570,34 +570,102 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
           );
         })()}
+
+        {/* Auth 버튼 (갤러리 아이템) */}
+        {(() => {
+          const AUTH_BTN_ID = 'auth-btn';
+          const authBtnIdx = portfolios.length + 3;
+          const { x, y, scaleMultiplier, zIndex, opacity, baseSize } =
+            getPosition(authBtnIdx, portfolios.length + 4, progress);
+
+          if (opacity <= 0.01) return null;
+
+          const btnRotation = rotations[(portfolios.length + 3) % rotations.length];
+
+          const handleAuthClick = async () => {
+            if (isLoading) return; // 로딩 중이면 클릭 무시
+
+            if (isAuthenticated && onLogout) {
+              await onLogout();
+            } else if (onLogin) {
+              onLogin();
+            }
+          };
+
+          return (
+            <div
+              key={AUTH_BTN_ID}
+              onClick={handleAuthClick}
+              className="absolute pointer-events-auto cursor-pointer group"
+              style={{
+                left: 0, top: 0,
+                transform: `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scaleMultiplier}) rotate(${btnRotation}deg)`,
+                zIndex: zIndex + 10,
+                opacity: opacity,
+                willChange: 'transform, opacity',
+                transition: isTransitioningRef.current ? 'transform 0.5s ease-out' : undefined,
+              }}
+              onMouseMove={(e) => handleCardTilt(AUTH_BTN_ID, e.clientX, e.clientY, e.currentTarget)}
+              onMouseLeave={() => resetCardTilt(AUTH_BTN_ID)}
+              onTouchStart={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(AUTH_BTN_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchMove={(e) => {
+                const t = e.touches[0];
+                handleCardTilt(AUTH_BTN_ID, t.clientX, t.clientY, e.currentTarget);
+              }}
+              onTouchEnd={() => resetCardTilt(AUTH_BTN_ID)}
+              onTouchCancel={() => resetCardTilt(AUTH_BTN_ID)}
+            >
+              <div
+                ref={(el) => {
+                  if (el) {
+                    cardRefs.current.set(AUTH_BTN_ID, el);
+                    if (!wobbleMap.current.has(AUTH_BTN_ID)) {
+                      wobbleMap.current.set(AUTH_BTN_ID, { rx: 0, ry: 0, trx: 0, try: 0 });
+                    }
+                  } else {
+                    cardRefs.current.delete(AUTH_BTN_ID);
+                    wobbleMap.current.delete(AUTH_BTN_ID);
+                  }
+                }}
+                style={{ width: `${baseSize}px`, height: `${baseSize}px` }}
+                className={`flex flex-col items-center justify-center rounded-sm shadow-xl hover:shadow-2xl transition-shadow ${
+                  isAuthenticated
+                    ? 'bg-black dark:bg-white'
+                    : 'bg-white dark:bg-gray-800 border-2 border-black dark:border-white'
+                }`}
+              >
+                {isAuthenticated ? (
+                  <>
+                    <svg className="w-5 h-5 text-white dark:text-black mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span className="text-white dark:text-black text-[8px] font-black uppercase tracking-widest opacity-60">
+                      LOGOUT
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-black dark:text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    <span className="text-black dark:text-white text-[8px] font-black uppercase tracking-widest opacity-60">
+                      LOGIN
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Visual scroll hint */}
       <div className="absolute bottom-10 left-10 flex items-center gap-4 text-gray-200 dark:text-gray-600 opacity-40 pointer-events-none">
          <span className="text-[8px] font-bold tracking-[0.5em] uppercase vertical-text">DRAG OR SCROLL</span>
       </div>
-
-      {/* 로그인/로그아웃 버튼 (상단 우측) */}
-      {isAuthenticated ? (
-        <div className="absolute top-10 right-10 z-[1000] pointer-events-auto">
-          <button
-            onClick={onLogout}
-            disabled={isLoading}
-            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '로그아웃 중...' : '로그아웃'}
-          </button>
-        </div>
-      ) : (
-        <div className="absolute top-10 right-10 z-[1000] pointer-events-auto">
-          <button
-            onClick={onLogin}
-            className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm uppercase tracking-widest"
-          >
-            Login with Google
-          </button>
-        </div>
-      )}
     </div>
   );
 };
