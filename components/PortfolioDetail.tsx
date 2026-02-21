@@ -209,7 +209,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
         <div className="flex-1 space-y-12">
           {/* Main Content */}
           <section>
-            <h1 className="text-6xl font-black font-heading mb-6 leading-tight dark:text-white">{item.title}</h1>
+            <h1 className="text-6xl font-bold font-heading mb-6 leading-tight dark:text-white">{item.title}</h1>
             <div className="flex flex-wrap gap-2 mb-8">
               {item.techStack.map((tech, i) => (
                 <span key={i} className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-[10px] font-black uppercase tracking-widest rounded-full dark:text-white">

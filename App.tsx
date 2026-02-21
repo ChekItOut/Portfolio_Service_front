@@ -9,14 +9,107 @@ import OAuthCallback from './src/components/OAuthCallback';
 import { apiClient, setRefreshTokenCallback } from './src/services/apiClient';
 import { mapApiResponsesToPortfolioItems } from './src/utils/portfolioMapper';
 
-// 로그인 전 표시할 기본 갤러리 (12개 샘플 이미지)
-const DEFAULT_PORTFOLIOS: PortfolioItem[] = Array.from({ length: 12 }).map((_, i) => ({
-  id: Number(`${i}`), // 기본값은 number 타입
-  title: `Project ${i + 1}`,
-  description: ['This is a default sample project to demonstrate the gallery flow.'],
-  images: [`https://picsum.photos/seed/${i + 50}/600/600`],
-  techStack: ['React', 'Tailwind', 'Motion'],
-}));
+// 디폴트 갤러리 이미지 import
+import pic1 from './src/img/pic1.png';
+import pic2 from './src/img/pic2.png';
+import pic3 from './src/img/pic3.png';
+import pic4 from './src/img/pic4.png';
+import pic5 from './src/img/pic5.png';
+import pic6 from './src/img/pic6.png';
+import pic7 from './src/img/pic7.png';
+import pic8 from './src/img/pic8.png';
+import pic9 from './src/img/pic9.png';
+import pic10 from './src/img/pic10.png';
+import pic11 from './src/img/pic11.png';
+import pic12 from './src/img/pic12.png';
+
+// 로그인 전 표시할 기본 갤러리 (12개 커스텀 이미지)
+const DEFAULT_PORTFOLIOS: PortfolioItem[] = [
+  {
+    id: 0,
+    title: 'Stillness',
+    description: [`A white presence stands on deep green grass, where contrast refines the scene into calm. The field absorbs light; the figure returns it—quietly luminous, effortlessly precise.`],
+    images: [pic1],
+    techStack: ['Photography', 'Composition'],
+  },
+  {
+    id: 1,
+    title: 'Perch',
+    description: [`Perched above the world, the cat holds the blue roof like a private stage. The saturated plane feels crisp and clean, while the still figure adds warmth—minimal, balanced, and quietly cinematic.`],
+    images: [pic2],
+    techStack: ['Photography', 'Color Theory'],
+  },
+  {
+    id: 2,
+    title: 'Afterglow',
+    description: [`He looks into orange as if into late light. The painting offers intensity; he answers with calm. Between them, the room feels suspended—an elegant pause where color becomes atmosphere.`],
+    images: [pic3],
+    techStack: ['Photography', 'Portrait'],
+  },
+  {
+    id: 3,
+    title: 'Tremble',
+    description: [`A white flower shivers against a red ground, like a thought you can't hold still. The blur becomes a heartbeat—tender, urgent—turning motion into feeling and color into a quiet confession.`],
+    images: [pic4],
+    techStack: ['Photography', 'Motion Blur'],
+  },
+  {
+    id: 4,
+    title: 'Yellow',
+    description: [`Yellow flowers gather like small suns, brightening the air without asking permission. Their light feels simple, yet impossible to ignore—joy made visible, held gently in petals.`],
+    images: [pic5],
+    techStack: ['Photography', 'Nature'],
+  },
+  {
+    id: 5,
+    title: 'Pasture',
+    description: [`Green spreads like calm across the frame, and the dog appears as a gentle punctuation mark. The image reads like a memory: light, honest, and quietly enduring.`],
+    images: [pic6],
+    techStack: ['Photography', 'Landscape'],
+  },
+  {
+    id: 6,
+    title: 'Sunlit',
+    description: [`Against deep green, yellow flowers glow with an effortless brightness. They soften the scene without overwhelming it—light held in petals, calm held in color.`],
+    images: [pic7],
+    techStack: ['Photography', 'Natural Light'],
+  },
+  {
+    id: 7,
+    title: 'Drift',
+    description: [`A small boat moves across a blue sea, as if carried by a thought too gentle to name. The horizon holds steady while the water shifts, turning distance into comfort and motion into quiet hope.`],
+    images: [pic8],
+    techStack: ['Photography', 'Seascape'],
+  },
+  {
+    id: 8,
+    title: 'Ink',
+    description: [`White swans drift across ink-dark water, each curve a soft flame against the void. Together they make a living constellation—elegant, weightless, and strangely intimate.`],
+    images: [pic9],
+    techStack: ['Photography', 'Wildlife'],
+  },
+  {
+    id: 9,
+    title: 'Ember',
+    description: [`A single orange fish moves through clear water like a drifting spark. Every ripple softens into silence, and the scene holds a gentle warmth without noise. 🐟`],
+    images: [pic10],
+    techStack: ['Photography', 'Underwater'],
+  },
+  {
+    id: 10,
+    title: 'Field',
+    description: [`Green spreads like life, white like light, and a figure appears as the measure between them. The contrast is sharp, but the mood is soft—human warmth held in a painted world. 🌿`],
+    images: [pic11],
+    techStack: ['Photography', 'Human & Nature'],
+  },
+  {
+    id: 11,
+    title: 'Glint',
+    description: [`Surfing over shining waves, the rider cuts through light like a clean stroke. The sea flickers beneath—silver, restless, alive—while balance turns motion into grace. 🏄‍♂️`],
+    images: [pic12],
+    techStack: ['Photography', 'Action'],
+  },
+];
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, accessToken, refreshAccessToken, login, logout } = useAuth();
