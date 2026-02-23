@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PortfolioItem, ViewState } from './types';
 import HeroSection from './components/HeroSection';
 import PortfolioForm from './components/PortfolioForm';
@@ -127,7 +127,7 @@ const AppContent: React.FC = () => {
   }, [refreshAccessToken]);
 
   // 포트폴리오 목록 로드 (API)
-  const loadPortfolios = async () => {
+  const loadPortfolios = useCallback(async () => {
     if (!isAuthenticated) return;
 
     try {
@@ -141,7 +141,7 @@ const AppContent: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
   // 로그인 전/후에 따라 포트폴리오 목록 로드
   useEffect(() => {
@@ -150,7 +150,7 @@ const AppContent: React.FC = () => {
     } else {
       setPortfolios(DEFAULT_PORTFOLIOS);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadPortfolios]);
 
   // Scroll to top on view change
   useEffect(() => {
