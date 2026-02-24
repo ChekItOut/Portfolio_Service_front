@@ -160,14 +160,17 @@ const AppContent: React.FC = () => {
   // view 변경 시 body overflow 제어
   useEffect(() => {
     if (view === 'home') {
-      document.body.style.overflow = 'hidden';  // HeroSection 스크롤용
+      document.body.style.overflow = 'hidden';    // HeroSection 스크롤용
+      document.body.style.overflowX = 'hidden';   // 가로 스크롤 차단
     } else {
-      document.body.style.overflow = 'auto';    // 일반 스크롤 허용
+      document.body.style.overflow = 'auto';      // 일반 스크롤 허용
+      document.body.style.overflowX = 'hidden';   // 가로 스크롤만 차단
     }
 
     // cleanup: 컴포넌트 언마운트 시 복원
     return () => {
       document.body.style.overflow = 'auto';
+      document.body.style.overflowX = 'auto';
     };
   }, [view]);
 
@@ -386,7 +389,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-[#f9fafb] dark:bg-[#111111] text-gray-900 dark:text-gray-100 transition-colors duration-300 ${view === 'home' ? 'overflow-hidden' : 'overflow-x-hidden'}`}>
+    <div className={`min-h-screen bg-[#f9fafb] dark:bg-[#111111] text-gray-900 dark:text-gray-100 transition-colors duration-300 ${view === 'home' ? 'overflow-hidden' : ''}`}>
       <main className="relative">
         {view === 'home' && (
           <HeroSection

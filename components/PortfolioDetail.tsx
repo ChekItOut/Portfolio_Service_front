@@ -23,7 +23,7 @@ const ImageSlider: React.FC<{ images: (File | string)[], onImageClick: (idx: num
     const img = images[0];
     const src = typeof img === 'string' ? img : URL.createObjectURL(img);
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-black">
         <img
           src={src}
           alt="Portfolio"
@@ -39,7 +39,7 @@ const ImageSlider: React.FC<{ images: (File | string)[], onImageClick: (idx: num
   const animationDuration = images.length * 5;
 
   return (
-    <div className="h-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div className="h-full overflow-hidden bg-gray-50 dark:bg-black">
       <style>{`
         @keyframes slide-left {
           from { transform: translateX(0); }
@@ -75,7 +75,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
   // item 유효성 검증
   if (!item || !item.title) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center dark:bg-gray-900">
+      <div className="min-h-screen flex flex-col items-center justify-center dark:bg-black">
         <h2 className="text-2xl font-bold mb-4 dark:text-white">Invalid data</h2>
         <button
           onClick={onBack}
@@ -90,20 +90,22 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
   const [selectedImageIdx, setSelectedImageIdx] = useState<number | null>(null);
 
   return (
-    <div className="bg-white dark:bg-gray-900">
-      {/* 뒤로가기 버튼 (고정 상단 좌측) */}
-      <button
-        onClick={onBack}
-        className="fixed top-6 left-6 z-20 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors group"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back
-      </button>
+    <div className="bg-white dark:bg-black">
+      {/* 고정 헤더 (Back 버튼 포함) */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 px-6 py-4 transition-colors duration-300">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-colors group"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </button>
+      </header>
 
-      {/* 이미지 슬라이더 영역 (상단 50vh) */}
-      <section className="h-[50vh] w-full">
+      {/* 이미지 슬라이더 영역 (상단 50vh, 헤더 아래) */}
+      <section className="h-[50vh] w-full pt-16">
         <ImageSlider
           images={item.images}
           onImageClick={(idx) => setSelectedImageIdx(idx)}
@@ -154,12 +156,12 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
           <article className="lg:w-3/5 space-y-6 min-h-[200vh] pb-12">
             {Array.isArray(item.description) ? (
               item.description.map((para, i) => (
-                <p key={i} className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+                <p key={i} className="text-lg lg:text-xl text-gray-600 dark:text-white leading-relaxed font-light">
                   {para}
                 </p>
               ))
             ) : (
-              <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
+              <p className="text-lg lg:text-xl text-gray-600 dark:text-white leading-relaxed font-light">
                 {item.description}
               </p>
             )}
