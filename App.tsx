@@ -157,6 +157,20 @@ const AppContent: React.FC = () => {
     window.scrollTo(0, 0);
   }, [view]);
 
+  // view 변경 시 body overflow 제어
+  useEffect(() => {
+    if (view === 'home') {
+      document.body.style.overflow = 'hidden';  // HeroSection 스크롤용
+    } else {
+      document.body.style.overflow = 'auto';    // 일반 스크롤 허용
+    }
+
+    // cleanup: 컴포넌트 언마운트 시 복원
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [view]);
+
   // HTML 클래스 토글 (Tailwind dark: 활성화)
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
@@ -397,25 +411,25 @@ const AppContent: React.FC = () => {
         )}
 
         {view === 'detail' && (
-          <div className="min-h-screen flex flex-col">
-            <div className="flex-1 flex items-center py-16">
-              {/* 상태 1: 로딩 중 */}
-              {detailLoadingId === selectedId ? (
-                <div className="max-w-6xl mx-auto px-6 text-center">
-                  <div className="inline-block w-16 h-16 border-4 border-gray-200 border-t-black dark:border-t-white rounded-full animate-spin mb-4"></div>
-                  <p className="text-gray-500 dark:text-gray-400">상세 정보를 불러오는 중...</p>
+          <>
+            {detailLoadingId === selectedId ? (
+              /* 상태 1: 로딩 중 */
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6">
+                  <div className="w-16 h-16 border-4 border-gray-200 border-t-black dark:border-t-white rounded-full animate-spin"></div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">Loading portfolio...</p>
                 </div>
-              ) : detailError ? (
-                /* 상태 2: 에러 발생 */
-                <div className="max-w-6xl mx-auto px-6 text-center">
-                  <div className="mb-8">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h2 className="text-2xl font-bold mb-2 dark:text-white">오류 발생</h2>
+              </div>
+            ) : detailError ? (
+              /* 상태 2: 에러 발생 */
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6 px-6 text-center">
+                  <div className="text-6xl">⚠️</div>
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 dark:text-white">포트폴리오 로드 오류</h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-6">{detailError}</p>
                   </div>
-                  <div className="flex gap-4 justify-center">
+                  <div className="flex gap-4 justify-center flex-wrap">
                     <button
                       onClick={() => {
                         setDetailError(null);
@@ -433,18 +447,27 @@ const AppContent: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              ) : selectedItem ? (
-                /* 상태 3: 정상 렌더링 */
+              </div>
+            ) : selectedItem ? (
+              /* 상태 3: 정상 렌더링 */
+              <>
                 <PortfolioDetail
                   item={selectedItem}
                   onEdit={() => setView('edit')}
                   onDelete={() => handleDelete(selectedItem.id)}
                   onBack={() => setView('home')}
                 />
-              ) : (
-                /* 상태 4: 데이터 없음 (fallback) */
-                <div className="max-w-6xl mx-auto px-6 text-center">
-                  <h2 className="text-2xl font-bold mb-4 dark:text-white">포트폴리오를 찾을 수 없습니다</h2>
+                <Footer />
+              </>
+            ) : (
+              /* 상태 4: 데이터 없음 (fallback) */
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6 px-6 text-center">
+                  <div className="text-6xl">🔍</div>
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 dark:text-white">포트폴리오를 찾을 수 없습니다</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">선택한 포트폴리오를 찾을 수 없습니다.</p>
+                  </div>
                   <button
                     onClick={() => setView('home')}
                     className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold hover:scale-[1.02] transition-all"
@@ -452,10 +475,9 @@ const AppContent: React.FC = () => {
                     홈으로 돌아가기
                   </button>
                 </div>
-              )}
-            </div>
-            <Footer />
-          </div>
+              </div>
+            )}
+          </>
         )}
 
         {view === 'edit' && selectedItem && (

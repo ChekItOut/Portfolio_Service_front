@@ -3,7 +3,10 @@
     "allow": [
       "Bash(curl:*)",
       "Bash(npm run dev:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:zerogloss.com)"
     ]
   }
 }

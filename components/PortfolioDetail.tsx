@@ -90,7 +90,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
   const [selectedImageIdx, setSelectedImageIdx] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="bg-white dark:bg-gray-900">
       {/* 뒤로가기 버튼 (고정 상단 좌측) */}
       <button
         onClick={onBack}
@@ -151,7 +151,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
           </aside>
 
           {/* 우측: Description (스크롤 가능) */}
-          <article className="lg:w-3/5 space-y-6 pb-[150vh]">
+          <article className="lg:w-3/5 space-y-6 min-h-[200vh] pb-12">
             {Array.isArray(item.description) ? (
               item.description.map((para, i) => (
                 <p key={i} className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-light">
