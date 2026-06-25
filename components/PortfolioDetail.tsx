@@ -7,6 +7,7 @@ interface PortfolioDetailProps {
   onEdit: () => void;
   onDelete: () => void;
   onBack: () => void;
+  canEdit?: boolean;
 }
 
 // 이미지 슬라이더 컴포넌트
@@ -71,7 +72,7 @@ const ImageSlider: React.FC<{ images: (File | string)[], onImageClick: (idx: num
   );
 };
 
-const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelete, onBack }) => {
+const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelete, onBack, canEdit = true }) => {
   // item 유효성 검증
   if (!item || !item.title) {
     return (
@@ -131,25 +132,26 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({ item, onEdit, onDelet
               ))}
             </div>
 
-            {/* Edit/Delete 버튼 - TechStack 아래로 이동 */}
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={onEdit}
-                className="flex-1 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-xl font-bold tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                EDIT
-              </button>
-              <button
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this project?')) {
-                    onDelete();
-                  }
-                }}
-                className="flex-1 border-2 border-red-500 text-red-500 px-6 py-3 rounded-xl font-bold tracking-widest hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
-              >
-                DELETE
-              </button>
-            </div>
+            {canEdit && (
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={onEdit}
+                  className="flex-1 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-xl font-bold tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  EDIT
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this project?')) {
+                      onDelete();
+                    }
+                  }}
+                  className="flex-1 border-2 border-red-500 text-red-500 px-6 py-3 rounded-xl font-bold tracking-widest hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"
+                >
+                  DELETE
+                </button>
+              </div>
+            )}
           </aside>
 
           {/* 우측: Description (스크롤 가능) */}

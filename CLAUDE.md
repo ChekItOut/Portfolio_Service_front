@@ -32,26 +32,26 @@ npm run preview
 - `view`: ViewState ('home' | 'create' | 'detail' | 'edit') - 현재 화면 상태
 - `selectedId`: 선택된 포트폴리오 ID
 - 모든 CRUD 작업 처리 (handleCreate, handleUpdate, handleDelete)
-- localStorage에 자동 저장 (curvify_portfolios 키)
+- 사용자 포트폴리오는 localStorage에 자동 저장 (`curvify_user_portfolios_v1` 키)
+- 기본 샘플 12개는 읽기 전용으로 유지하고, 사용자 저장 항목은 샘플 앞에 표시
 
 ### 컴포넌트 구조
 
 | 컴포넌트 | 역할 |
 |---------|------|
 | **HeroSection** | 스크롤/터치 기반 곡선 갤러리. 복잡한 매개변수 애니메이션(parametric path) 사용. 약 100 프레임을 미리 계산하여 성능 최적화. |
-| **Header** | 상단 네비게이션 및 "Add" 버튼. 현재 뷰에 따라 동적으로 렌더링. |
 | **PortfolioForm** | 새 포트폴리오 생성/편집 폼. 제목, 설명, 이미지, 기술 스택 입력. |
-| **PortfolioDetail** | 포트폴리오 항목 상세 보기. 편집 및 삭제 버튼 포함. |
+| **PortfolioDetail** | 포트폴리오 항목 상세 보기. 사용자 저장 항목에만 편집 및 삭제 버튼 표시. |
 
 ### 데이터 모델
 ```typescript
 interface PortfolioItem {
-  id: string;                    // UUID (crypto.randomUUID())
+  id: number;                    // 기본 샘플: 0-11, 사용자 항목: 1000 이상
   title: string;                 // 포트폴리오 제목
-  description: string;           // 설명
-  images: string[];              // Base64 또는 URL
+  description: string[];         // 문단 배열
+  images: (File | string)[];     // 폼에서는 File 허용, 저장 시 압축 Data URL 문자열
   techStack: string[];           // 사용된 기술
-  createdAt: number;             // 타임스탐프
+  createdAt?: number;            // 타임스탬프
 }
 ```
 
@@ -72,13 +72,12 @@ interface PortfolioItem {
 - `requestAnimationFrame`으로 매 프레임 0.00015씩 자동 진행
 
 ### 환경 변수
-- **GEMINI_API_KEY**: vite.config.ts에서 처리하여 클라이언트에 주입
-- `.env.local` 파일에서 설정 (예: `GEMINI_API_KEY=your_api_key`)
+현재 앱은 백엔드 서버, OAuth, 외부 API 키 없이 실행됩니다.
 
 ## 개발 주의사항
 
 1. **포트폴리오 데이터**: localStorage를 통해 지속되므로, 데이터 구조를 변경할 때 마이그레이션 로직이 필요할 수 있습니다.
-2. **이미지 처리**: Base64 또는 URL 지원. 대용량 Base64는 localStorage 크기 제한에 주의.
+2. **이미지 처리**: 업로드 이미지는 canvas로 최대 1600px, JPEG 품질 0.82의 Data URL로 압축해 저장합니다. 그래도 localStorage 크기 제한에 주의.
 3. **성능**: HeroSection의 애니메이션은 GPU 가속을 위해 `translate3d`와 `willChange` CSS 사용.
 4. **뷰 전환**: 뷰 변경 시 자동으로 페이지 맨 위로 스크롤 (useEffect in App.tsx).
 5. **TypeScript**: JSX pragma는 React 17+ 자동 import 사용 (tsconfig.json의 `jsx: "react-jsx"`).
